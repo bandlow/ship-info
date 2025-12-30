@@ -8,10 +8,14 @@
     "express": "^4"
   },
   "devDependencies": {
+    "@cap-js/cds-test": "^0.4.1",
     "@cap-js/sqlite": "^2.1.2",
-    "@sap/cds": "^9.6.1"
+    "@sap/cds": "^9.6.1",
+    "mocha": "^11.7.5"
   },
   "scripts": {
+    "test": "mocha --timeout 30000 --exit --reporter spec test/**/*.test.cjs",
+    "test:watch": "mocha --timeout 30000 --watch test/**/*.test.cjs",
     "stammdaten": "wsl bash ./scripts/import-stammdaten.sh",
     "deploy-db": "cds deploy --to sqlite:ship-info.sqlite",
     "dev": "npm run stammdaten && cds watch srv/",
