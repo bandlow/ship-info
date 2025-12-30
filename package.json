@@ -14,7 +14,9 @@
     "mocha": "^11.7.5"
   },
   "scripts": {
-    "test": "mocha --timeout 30000 --exit --reporter spec test/**/*.test.cjs",
+    "test": "cds test test/**/*.test.cjs",
+    "test:debug": "DEBUG=cds* cds test test/**/*.test.cjs",
+    "test:mocha": "mocha --timeout 30000 --exit --reporter spec test/**/*.test.cjs",
     "test:watch": "mocha --timeout 30000 --watch test/**/*.test.cjs",
     "stammdaten": "wsl bash ./scripts/import-stammdaten.sh",
     "deploy-db": "cds deploy --to sqlite:ship-info.sqlite",
