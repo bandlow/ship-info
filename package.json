@@ -1,0 +1,36 @@
+{
+  "name": "mdb-import",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "type": "module",
+  "dependencies": {
+    "@cap-js/hana": "^2.5.1",
+    "@el3um4s/node-mdb": "^0.1.2",
+    "express": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2.1.2",
+    "@sap/cds": "^9.6.1"
+  },
+  "scripts": {
+    "stammdaten": "wsl bash ./scripts/import-stammdaten.sh",
+    "deploy": "cds deploy --to sqlite:shipdata.sqlite",
+    "dev": "npm run stammdaten && cds watch srv/",
+    "reset": "rm shipdata.sqlite && npm run deploy && npm run stammdaten",
+    "hana": "cds deploy --to hana"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": "shipdata.sqlite"
+        },
+         "[production]": {
+          "kind": "hana"
+        }
+      }
+    }
+  }
+}
