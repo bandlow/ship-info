@@ -16,10 +16,11 @@
     "@sap/eslint-plugin-cds": "^4"
   },
   "scripts": {
-    "test": "cds test test/**/*.test.cjs",
-    "test:debug": "DEBUG=cds* cds test test/**/*.test.cjs",
-    "test:mocha": "mocha --timeout 30000 --exit --reporter spec test/**/*.test.cjs",
-    "test:watch": "mocha --timeout 30000 --watch test/**/*.test.cjs",
+    "test": "cds test",
+    "test:ci": "npx cds test",
+    "test:debug": "DEBUG=cds* cds test test/**/*.test.js",
+    "test:mocha": "mocha --timeout 30000 --exit --reporter spec test/**/*.test.js",
+    "test:watch": "mocha --timeout 30000 --watch test/**/*.test.js",
     "stammdaten": "wsl bash ./scripts/import-stammdaten.sh",
     "deploy-db": "cds deploy --to sqlite:ship-info.sqlite",
     "dev": "npm run stammdaten && cds watch srv/",
