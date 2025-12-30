@@ -25,5 +25,7 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Run tests
+    - name: Run tests (in-memory SQLite)
+      env:
+        DB_PATH: :memory
       run: npm test
