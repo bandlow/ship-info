@@ -3,30 +3,39 @@ _schema-version: '3.2'
 version: ${project.version}
 
 modules:
-- name: ship-info-srv
-  type: nodejs
-  path: srv
-  requires:
-  - name: ship-info-hana
-  provides:
-  - name: ship-info-srv_api
-  parameters:
-    memory: 256M
-  build-parameters:
-    builder: npm-builder
+  - name: ship-info-srv
+    type: nodejs
+    path: srv
+    requires:
+      - name: ship-info-hana
+    provides:
+      - name: ship-info-srv_api
+    parameters:
+      memory: 256M
+    build-parameters:
+      builder: npm-builder
 
-- name: ship-info-ui
-  type: html5
-  path: app/ship-info-app
-  requires:
-  - name: ship-info-srv_api
-  - name: ship-info-html5-repo-host
+  - name: ship-info-ui
+    type: html5
+    path: app/ship-info-app
+    requires:
+      - name: ship-info-srv_api
+      - name: ship-info-html5-repo-host
 
 resources:
-- name: ship-info-hana
-  type: com.sap.xs.hdi-container
-  properties:
-    hdi-container-name: ${service-name}
+  - name: ship-info-hana
+    type: com.sap.xs.hdi-container
+    properties:
+      hdi-container-name: ${service-name}
 
-- name: ship-info-html5-repo-host
-  type: com.sap.html5.htmlrepo
+  - name: ship-info-html5-repo-host
+    type: com.sap.html5.htmlrepo
+description: "Ship Information API based on LLoyds MDB"
+parameters:
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production

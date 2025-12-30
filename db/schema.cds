@@ -311,7 +311,7 @@ entity tblStatusCodes {
 }
 
 entity tblStatusHistory {
-    key LRNO: String;
+    LRNO: String;
     Status: String;
     Sequence: String;
     StatusDate: String;
@@ -319,7 +319,7 @@ entity tblStatusHistory {
 }
 
 entity tblSurveyDateHistory {
-    key LRNO: String;
+    LRNO: String;
     ClassSocietyCode: String;
     SpecialSurvey: String;
     ContinuousSurvey: String;

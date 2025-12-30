@@ -11,7 +11,9 @@
     "@cap-js/cds-test": "^0.4.1",
     "@cap-js/sqlite": "^2.1.2",
     "@sap/cds": "^9.6.1",
-    "mocha": "^11.7.5"
+    "eslint": "^9.39.2",
+    "mocha": "^11.7.5",
+    "@sap/eslint-plugin-cds": "^4"
   },
   "scripts": {
     "test": "cds test test/**/*.test.cjs",
@@ -39,6 +41,14 @@
         },
         "[production]": {
           "kind": "hana"
+        }
+      },
+      "srv": {
+        "kind": "odata-v4",
+        "model": "*",
+        "credentials": {
+          "port": 4004,
+          "hostname": "localhost"
         }
       }
     }
