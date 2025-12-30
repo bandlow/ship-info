@@ -1,11 +1,10 @@
 {
-  "name": "mdb-import",
+  "name": "ship-info",
   "version": "1.0.0",
-  "description": "A simple CAP project.",
+  "description": "Ship Information API based on LLoyds MDB",
   "type": "module",
   "dependencies": {
     "@cap-js/hana": "^2.5.1",
-    "@el3um4s/node-mdb": "^0.1.2",
     "express": "^4"
   },
   "devDependencies": {
@@ -14,10 +13,15 @@
   },
   "scripts": {
     "stammdaten": "wsl bash ./scripts/import-stammdaten.sh",
-    "deploy": "cds deploy --to sqlite:shipdata.sqlite",
+    "deploy-db": "cds deploy --to sqlite:ship-info.sqlite",
     "dev": "npm run stammdaten && cds watch srv/",
-    "reset": "rm shipdata.sqlite && npm run deploy && npm run stammdaten",
-    "hana": "cds deploy --to hana"
+    "reset": "rm ship-info.sqlite && npm run deploy-db && npm run stammdaten",
+    "hana": "cds deploy --to hana",
+    "deploy": "mbt build && cf deploy mta_archives/${npm_package_name}_${npm_package_version}.mtar",
+    "deploy:check": "mbt build",
+    "deploy:preview": "mbt build && cf deploy mta_archives/${npm_package_name}_${npm_package_version}.mtar --preview",
+    "version:patch": "npm version patch -m 'chore: release v%s'",
+    "version:minor": "npm version minor -m 'feat: release v%s'"
   },
   "private": true,
   "cds": {
@@ -25,7 +29,7 @@
       "db": {
         "kind": "sqlite",
         "credentials": {
-          "url": "shipdata.sqlite"
+          "url": "ship-info.sqlite"
         },
          "[production]": {
           "kind": "hana"

@@ -229,13 +229,13 @@ entity tblMainEngines {
 }
 
 entity tblMainGenerators {
-    key LRNO: String;
-    key SequenceNumber: String;
+    LRNO: String;
+    SequenceNumber: String;
     GeneratorPosition: String;
     Number: Int16;
     KW: Int32;
     Voltage: Int32;
-    AC_DCIndicator: String;
+    ACDCIndicator: String;
     Frequency: Int32;
     GeneratorMaker: String;
 }

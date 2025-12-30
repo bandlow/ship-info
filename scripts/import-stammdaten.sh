@@ -1,14 +1,22 @@
 #!/bin/bash
-cd /mnt/e/"SAP CAP"/mdb-import
+set -euo pipefail
+
+# 🎯 DYNAMISCHER PROJEKT ROOT!
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJ_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$PROJ_ROOT"
 
 MDB_PATH="ShipData.mdb"
-CAP_DB="shipdata.sqlite"
+CAP_DB="ship-info.sqlite"
+
+echo "🚀 Ship Info Import → $PROJ_ROOT"
 
 echo "🚀 CAP Schema (LIKE Namespace) → MDB Import"
 
 # 1. CAP Schema check
 if [ ! -f "$CAP_DB" ]; then
-  echo "❌ cds deploy --to sqlite:shipdata.sqlite zuerst!"
+  echo "❌ cds deploy --to sqlite:ship-info.sqlite zuerst!"
   exit 1
 fi
 
@@ -59,6 +67,12 @@ while IFS= read -r cap_table; do
   
   mdb-export -H -N "$NAMESPACE_PREFIX" -I sqlite "$MDB_PATH" "$mdb_table" | \
   # sed "s/INSERT INTO \`$mdb_table\` /INSERT INTO \`$cap_table\`/g" | \
+   sed '
+        s/AC\/DCIndicator/ACDCIndicator/g;
+        s/\&/AND/g;
+        s/%/PCT/g;
+        y/|/!/;
+      ' | \
   sqlite3 "$CAP_DB"
 count=$(sqlite3 ""$CAP_DB"" "SELECT COUNT(*) FROM $cap_table;")
 echo "✅ $count rows in $cap_table"
@@ -69,4 +83,4 @@ echo "✅ $count rows in $cap_table"
 done <<< "$CAP_TABLES"
 
 echo "🎉 Fertig! $count_total rows in $NAMESPACE_PREFIX% Tabellen"
-echo "📊 shipdata.sqlite: $(du -h "$CAP_DB")"
+echo "📊 sqlite: $(du -h "$CAP_DB")"

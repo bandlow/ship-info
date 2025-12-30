@@ -1,0 +1,110 @@
+[
+    {
+        "kind": 1,
+        "language": "markdown",
+        "value": "# Magic commands\n\n_Magic_ commands, or just _Magics_, are **conventient functions to solve common problems** which might already be known from [IPython](https://ipython.readthedocs.io/en/stable/interactive/magics.html):\n\n- They can be easily recognized as they start with `%`:\n  - Single `%` are for [_Line_ Magics](#line-magics) which take a _single_ line of input.\n  - Doube `%%` are for [_Cell_ Magics](#cell-magics) which take _multiple_ lines of input.\n- When executed, run the common task in an underlying (pre-defined) subprocess.\n- Ideal for recycling and common tasks, normalising and simplifiying the Notebook's workflow.\n- Output is returned to the CAP Notebook.\n- Get help by:\n  - Running the [`%quickref`](#quickref) Line Magic to get an overview of all Magic commands, their description and input arguments.\n  - Hovering over the highlighted Magic command to see its description and input arguments (i.e. its [`%quickref`](#quickref) entry).\n\n## Line Magics\n\n### [`%quickref`](#quickref)\n\nOne of the simplest (and very useful) Line Magic is `%quickref`.\n\nWhen called, this magic provides a small table with _all_ available Magic commands available in a CAP Notebook, which serves as a great loop-up reference before trying to do a common task in a complicated (and, in some cases, non-shell-agnostic) way:\n",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "shell",
+        "value": "%quickref",
+        "outputs": []
+    },
+    {
+        "kind": 1,
+        "language": "markdown",
+        "value": "### [`%reset`](#reset)\n\nThe `%reset` command resets the namespace by removing all names defined by the user.\n\nThe following cell for example, resets directory history:\n",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "shell",
+        "value": "%reset \"dhist\"",
+        "outputs": []
+    },
+    {
+        "kind": 1,
+        "language": "markdown",
+        "value": "### [`%systeminfo`](#systeminfo)\n\nThe `%systeminfo` command shows the system info, which are a collection of parameters that might be useful when trying to debugging a CAP Notebook that shows unexpected behaviors in different os- or local development-environments.\n",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "shell",
+        "value": "%systeminfo",
+        "outputs": []
+    },
+    {
+        "kind": 1,
+        "language": "markdown",
+        "value": "## Cell Magics\n\n### [`%%extendjson`](#extendjson)\n\nThe `%%extendjson` command is useful when adding content to an existing _JSON_ file. It then merges the contents of the input _JSON_ with that of the existing one.\n\nLet's assume we start with an empty _JSON_ \"package.json\". For simplicity, we will use the [`%%writefile`](#writefile) magic command to create this file:\n",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "json",
+        "value": "%%writefile \"package.json\"\n{}",
+        "outputs": []
+    },
+    {
+        "kind": 1,
+        "language": "markdown",
+        "value": "The next cell demonstrates how to use the `%%extendjson` command to add the cell's input content:\n",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "json",
+        "value": "%%extendjson \"package.json\"\n{\n    \"cds\": {\n        \"requires\": {\n            \"db\": {\n                \"kind\": \"sqlite\"\n            }\n        }\n    }\n}",
+        "outputs": []
+    },
+    {
+        "kind": 1,
+        "language": "markdown",
+        "value": "The next cell demonstrates how to use the `%%extendjson` command using a second \"path\" argument. The path uses '>' as delimiters and means that the cell's input content will be merged with the existing *JSON* at \"cds.requires\":",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "json",
+        "value": "%%extendjson \"package.json\" \"cds>requires\"\n{\n    \"extensibility\": true\n}",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "shell",
+        "value": "rm package.json",
+        "outputs": []
+    },
+    {
+        "kind": 1,
+        "language": "markdown",
+        "value": "### [`%%writefile`](#writefile)\n\nThe `%%writefile` command is simply a short and os-agnostic way to write a file to disk.\n\nFor example, let's start creating a *CDS* model by providing a namespace:",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "cds",
+        "value": "%%writefile \"schema.cds\"\nnamespace sap.capire.bookshop;",
+        "outputs": []
+    },
+    {
+        "kind": 1,
+        "language": "markdown",
+        "value": "The next cell shows how to use an additional `-a` flag (or `--append`) to append the cell's input content to the existing file:",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "cds",
+        "value": "%%writefile -a \"schema.cds\"\n\nentity Books {\n  key ID : Integer;\n  title  : String;\n  author : Sting;\n}",
+        "outputs": []
+    },
+    {
+        "kind": 2,
+        "language": "shell",
+        "value": "rm schema.cds",
+        "outputs": []
+    }
+]

@@ -1,6 +1,6 @@
 using skf.zcapn.shipimporter as ship from '../db/schema';
 
-service ShipImporterService {
+service ShipInfoService {
   //@odata.draft.enabled
   entity tblShip as projection on ship.tblShip;
   entity tblMainEngines as projection on ship.tblMainEngines;

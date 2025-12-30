@@ -1,0 +1,45 @@
+name: 🚀 Release to BTP
+
+on:
+  push:
+    tags:
+      - 'v*'  # Nur v1.0.1, v1.1.0 → Release!
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: production  # 2 Approvals!
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install & Build
+      run: |
+        npm ci
+        npm run schema
+        npm run stammdaten
+        npm run deploy:check  # → ship-info_1.0.1.mtar
+    
+    - name: Deploy BTP
+      env:
+        CF_API: ${{ secrets.CF_API }}
+        CF_USERNAME: ${{ secrets.CF_USERNAME }}
+        CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+        CF_SPACE: prod
+      run: |
+        MTAR="mta_archives/ship-info_${GITHUB_REF#v}.mtar"
+        cf deploy "$MTAR"
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Ship-Info v${{ github.ref_name }}
