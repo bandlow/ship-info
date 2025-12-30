@@ -1,6 +1,6 @@
 {
   "name": "ship-info",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Ship Information API based on LLoyds MDB",
   "type": "module",
   "dependencies": {
@@ -31,7 +31,7 @@
         "credentials": {
           "url": "ship-info.sqlite"
         },
-         "[production]": {
+        "[production]": {
           "kind": "hana"
         }
       }
