@@ -16,7 +16,7 @@
     "@sap/eslint-plugin-cds": "^4"
   },
   "scripts": {
-    "test:load": "npm run deploy-db:memory && cds run test/load-mockdata.js",
+    "test:load": "npm run deploy-db:memory && node test/load-mockdata.js",
     "test": "npm run test:load && cds test test/**/*.test.js",
     "test:ci": "npx cds test",
     "test:debug": "DEBUG=cds* cds test test/**/*.test.js",
