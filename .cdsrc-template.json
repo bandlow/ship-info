@@ -1,0 +1,83 @@
+
+{
+  "$schema": "https://sap.github.io/cap/docs/cdsrc.schema.json",
+  "requires": {
+    "db": {
+      "kind": "sqlite",
+      "credentials": {
+        "url": "ship-info.sqlite"
+      }
+    },
+    "auth": {
+      "kind": "mock"
+    },
+    "odata": {
+      "model": "srv", 
+      "version": "v4"
+    }
+  },
+  "odata": {
+    "version": "v4",
+    "proxies": true
+  },
+  "profiles": {
+    "test": {
+      "requires": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": ":memory:"
+          }
+        },
+        "auth": {
+          "kind": "mock"
+        }
+      }
+    },
+    "production": {
+      "requires": {
+        "db": {
+          "kind": "hana"
+        },
+        "auth": {
+          "kind": "xsuaa"
+        }
+      }
+    },
+    "dev": {
+      "requires": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": "db.sqlite"
+          }
+        },
+        "auth": {
+          "kind": "mock"
+        },
+        "destinations": {
+          "SPGLOBAL_SFTP": {
+            "kind": "rest",
+            "credentials": {
+              "url": "http://localhost:3001/mock-sftp",
+              "forwardAuthToken": false
+            }
+          },
+          "ShipApi": {
+            "kind": "odata",
+            "model": "srv/external/ShipApi",
+            "csrf": false,
+            "csrfInBatch": false,
+            "destinationOptions": {
+              "selectionStrategy": "alwaysProvider",
+              "timeout": 30000
+            },
+            "credentials": {
+              "url": "http://localhost:3002/mock-shipapi"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,7 @@ connection.properties
 default-*.json
 .cdsrc-private.json
 gen/
-node_modules/
+node_modules/*
 target/
 
 # Web IDE, App Studio

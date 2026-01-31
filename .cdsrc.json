@@ -1,0 +1,51 @@
+{
+  "profiles": ["development", "hybrid", "local", "test"],
+  
+  "folders": {
+    "db": "db",
+    "srv": "srv",
+    "app": "app"
+  },
+  "requires": {
+    "db": {
+      "[development]": {
+        "kind": "sqlite",
+        "credentials": { "url": "ship-info.sqlite" }
+      },
+      "[test]": {
+        "kind": "sqlite",
+        "credentials": { "url": ":memory:" }
+      },
+      "[hybrid]": {
+        "kind": "hana"
+      },
+      "[production]": {
+        "kind": "hana"
+      }
+    },
+    "auth": {
+      "[development]": {
+        "kind": "basic",
+        "users": {
+          "alice": { "password": "alice", "roles": ["Admin"] },
+          "bob": { "password": "bob", "roles": ["User"] }
+        }
+      },
+      "[test]": {
+        "kind": "basic",
+        "users": {
+          "test": { "password": "test", "roles": ["Viewer"] }
+        }
+      },
+      "[hybrid]": {
+        "kind": "xsuaa",
+        "vcap": "xsuaa"
+      },
+      "[production]": {
+        "kind": "xsuaa"
+      }
+    }
+  },
+  "odata": { "containment": true },
+  "i18n": { "default_language": "de" }
+}
