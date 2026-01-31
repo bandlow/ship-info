@@ -1,4 +1,4 @@
-namespace skf.zcapn.shipimporter;
+namespace shipinfo;
 entity tblShip {
     key LRIMOShipNo: String;
     ShipName: String;

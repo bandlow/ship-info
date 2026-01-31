@@ -47,7 +47,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
             return;
           }
 
-          const entityName = `skf.zcapn.shipimporter.${tableName}`;
+          const entityName = `shipinfo.${tableName}`;
 
           try {
             await cds.db.insert.into(entityName).entries(rows);

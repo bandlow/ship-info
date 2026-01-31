@@ -1,5 +1,5 @@
 // srv/import-service.cds
-using { skf.zcapn.shipimporter as si } from '../db/schema';
+using {shipinfo as si } from '../db/schema';
 
 service ImportService @(requires: 'authenticated-user') {
     

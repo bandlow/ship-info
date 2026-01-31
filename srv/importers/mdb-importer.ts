@@ -3,59 +3,49 @@ import MDBReader from 'mdb-reader';
 import { readFileSync } from 'fs';
 import cds from '@sap/cds';
 import { TABLE_MAPPING, IMPORT_ORDER, transformRow } from './table-mapper.js';
-import type { ImportResult, ImportStats, JobLogEntry } from '../types/index.js';
+import type { ImportResult, ImportStats } from '../types/index.js';
 
-const { DELETE, INSERT, UPDATE, SELECT } = cds.ql;
+const { DELETE, INSERT } = cds.ql;
+const LOG = cds.log('mdb-importer');
 
 export class MDBImporter {
   private reader: MDBReader | null = null;
   private stats: Record<string, ImportStats> = {};
   
-  /**
-   * Öffnet MDB-Datei
-   */
   openMDB(filePath: string): string[] {
     const buffer = readFileSync(filePath);
     this.reader = new MDBReader(buffer);
     
     const tables = this.reader.getTableNames();
-    console.log(`📂 MDB geöffnet: ${tables.length} Tabellen gefunden`);
+    LOG.info(`📂 MDB geöffnet: ${tables.length} Tabellen gefunden`);
     return tables;
   }
   
-  /**
-   * Importiert alle Tabellen in definierter Reihenfolge
-   */
   async importAll(filePath: string): Promise<ImportResult> {
     const startTime = Date.now();
     this.stats = {};
     
     try {
-      // 1. MDB öffnen
+      LOG.info('🚀 Starting MDB import from:', filePath);
+      
       this.openMDB(filePath);
       
       if (!this.reader) {
         throw new Error('MDB konnte nicht geöffnet werden');
       }
       
-      // 2. Job-Log erstellen
-      const jobID = await this.createJobLog('MDB_FULL_IMPORT');
-      
-      // 3. Tabellen in korrekter Reihenfolge importieren
+      // Importiere alle Tabellen
       for (const tableName of IMPORT_ORDER) {
         if (!this.reader.getTableNames().includes(tableName)) {
-          console.log(`⚠️  Tabelle ${tableName} nicht in MDB gefunden - überspringe`);
+          LOG.warn(`⚠️  ${tableName} nicht in MDB gefunden - überspringe`);
           continue;
         }
         
         await this.importTable(tableName);
       }
       
-      // 4. Job-Log aktualisieren
-      await this.updateJobLog(jobID, true, 'Import erfolgreich');
-      
       const duration = Date.now() - startTime;
-      console.log(`✅ Import abgeschlossen in ${(duration / 1000).toFixed(2)}s`);
+      LOG.info(`✅ Import abgeschlossen in ${(duration / 1000).toFixed(2)}s`);
       
       return {
         success: true,
@@ -66,14 +56,11 @@ export class MDBImporter {
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
-      console.error('❌ Import fehlgeschlagen:', errorMessage);
+      LOG.error('❌ Import fehlgeschlagen:', errorMessage);
       throw error;
     }
   }
   
-  /**
-   * Importiert einzelne Tabelle
-   */
   async importTable(tableName: string): Promise<void> {
     const startTime = Date.now();
     
@@ -82,29 +69,30 @@ export class MDBImporter {
         throw new Error('MDB Reader nicht initialisiert');
       }
       
-      // 1. Daten aus MDB lesen
+      // Daten aus MDB lesen
       const mdbTable = this.reader.getTable(tableName);
       const rows = mdbTable.getData();
       
       if (rows.length === 0) {
-        console.log(`⏭️  ${tableName}: keine Daten`);
+        LOG.info(`⏭️  ${tableName}: keine Daten`);
         return;
       }
       
-      // 2. CDS Entity ermitteln
+      // CDS Entity ermitteln
       const entityName = TABLE_MAPPING[tableName];
       if (!entityName) {
-        console.log(`⚠️  ${tableName}: kein Mapping definiert`);
+        LOG.warn(`⚠️  ${tableName}: kein Mapping definiert`);
         return;
       }
       
-      // 3. Alte Daten löschen
+      // Alte Daten löschen
+      LOG.info(`🗑️  ${tableName}: Lösche ${rows.length} alte Zeilen...`);
       await DELETE.from(entityName);
       
-      // 4. Daten transformieren und einfügen
+      // Daten transformieren und einfügen
       const transformedRows = rows.map(transformRow);
       
-      // Batch-Insert in Chunks (HANA Limit: ~1000 rows)
+      // Batch-Insert
       const BATCH_SIZE = 500;
       let inserted = 0;
       
@@ -112,64 +100,24 @@ export class MDBImporter {
         const batch = transformedRows.slice(i, i + BATCH_SIZE);
         await INSERT.into(entityName).entries(batch);
         inserted += batch.length;
+        
+        // Progress für große Tabellen
+        if (transformedRows.length > 1000 && (i + BATCH_SIZE) % 5000 === 0) {
+          const progress = ((i + BATCH_SIZE) / transformedRows.length * 100).toFixed(0);
+          LOG.info(`   📊 ${tableName}: ${progress}% (${i + BATCH_SIZE} / ${transformedRows.length})`);
+        }
       }
       
       const duration = Date.now() - startTime;
       this.stats[tableName] = { tableName, rows: inserted, duration };
       
-      console.log(`✅ ${tableName}: ${inserted} Zeilen in ${duration}ms`);
-      
-      // 5. Update-Status speichern
-      await this.updateEntityStatus(tableName, rows.length);
+      LOG.info(`✅ ${tableName}: ${inserted.toLocaleString()} Zeilen in ${(duration / 1000).toFixed(1)}s`);
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
-      console.error(`❌ ${tableName}: Fehler beim Import`, errorMessage);
+      LOG.error(`❌ ${tableName}:`, errorMessage);
       this.stats[tableName] = { tableName, rows: 0, duration: 0, error: errorMessage };
-      throw error;
+      // Nicht werfen - nächste Tabelle versuchen
     }
-  }
-  
-  /**
-   * Erstellt Job-Log-Eintrag
-   */
-  private async createJobLog(jobType: string): Promise<string> {
-    const { jobLog } = cds.entities('skf.zcapn.shipimporter');
-    
-    const entry: JobLogEntry = {
-      JobType: jobType,
-      StartTime: new Date(),
-      Status: 'RUNNING'
-    };
-    
-    const result = await INSERT.into(jobLog).entries(entry);
-    return result.ID as string;
-  }
-  
-  /**
-   * Aktualisiert Job-Log
-   */
-  private async updateJobLog(jobID: string, success: boolean, message: string): Promise<void> {
-    const { jobLog } = cds.entities('skf.zcapn.shipimporter');
-    
-    await UPDATE.entity(jobLog).set({
-      EndTime: new Date(),
-      Success: success,
-      Status: success ? 'COMPLETED' : 'FAILED',
-      Message: message
-    }).where({ ID: jobID });
-  }
-  
-  /**
-   * Speichert Entity-Update-Status
-   */
-  private async updateEntityStatus(tableName: string, rowCount: number): Promise<void> {
-    const { entityUpdateStatus } = cds.entities('skf.zcapn.shipimporter');
-    
-    await INSERT.into(entityUpdateStatus).entries({
-      Entity: tableName,
-      Key: 'FULL_IMPORT',
-      LastDeltaUpdateDate: new Date()
-    });
   }
 }

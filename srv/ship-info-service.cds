@@ -1,4 +1,4 @@
-using skf.zcapn.shipimporter as ship from '../db/schema';
+using shipinfo as ship from '../db/schema';
 
 service ShipInfoService {
   //@odata.draft.enabled

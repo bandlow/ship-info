@@ -93,7 +93,7 @@ export class JSONImporter {
   }
   
   private async createJobLog(jobType: string): Promise<string> {
-    const { jobLog } = cds.entities('skf.zcapn.shipimporter');
+    const { jobLog } = cds.entities('shipinfo');
     
     const result = await INSERT.into(jobLog).entries({
       JobType: jobType,
@@ -105,7 +105,7 @@ export class JSONImporter {
   }
   
   private async updateJobLog(jobID: string, success: boolean, message: string): Promise<void> {
-    const { jobLog } = cds.entities('skf.zcapn.shipimporter');
+    const { jobLog } = cds.entities('shipinfo');
     
     // ✅ Korrigiert: UPDATE mit .entity()
     await UPDATE.entity(jobLog).set({
