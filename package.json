@@ -5,25 +5,43 @@
   "type": "module",
   "dependencies": {
     "@cap-js/hana": "^2.5.1",
-    "express": "^4"
+    "express": "^4",
+    "mdb-reader": "^3.1.0"
   },
   "devDependencies": {
     "@cap-js/cds-test": "^0.4.1",
+    "@cap-js/cds-typer": ">=0.1",
+    "@cap-js/cds-types": "^0.15.0",
     "@cap-js/sqlite": "^2.1.2",
-    "@sap/cds": "^9.6.1",
+    "@sap/cds": "^9.6.4",
     "@sap/cds-dk": "^9.6.0",
     "@sap/eslint-plugin-cds": "^4",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/node": "^24.0.0",
     "eslint": "^9.39.2",
-    "mocha": "^11.7.5"
+    "mocha": "^11.7.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4",
+    "typescript": "^5"
   },
   "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist @cds-models",
+    "prebuild": "npm run clean",
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "test:import:mdb": "tsx test/test-import.ts --mode=mdb",
+    "test:import:delta": "tsx test/test-import.ts --mode=delta",
+    "import:mdb": "node dist/test/test-import.js --mode=mdb",
+    "import:delta": "node dist/test/test-import.js --mode=delta",
     "test:load": "npm run deploy-db:memory && node test/load-mockdata.js",
     "test": "cds test",
     "test:ci": "npx cds test",
     "test:debug": "DEBUG=cds* cds test test/**/*.test.js",
     "test:mocha": "mocha --timeout 30000 --exit --reporter spec test/**/*.test.js",
     "test:watch": "mocha --timeout 30000 --watch test/**/*.test.js",
-    "stammdaten": "wsl bash ./scripts/import-stammdaten.sh",
+    "stammdaten": "./scripts/import-stammdaten.sh",
     "mock-data": "./scripts/create-mockdata.sh",
     "deploy-db": "cds deploy --to sqlite:ship-info.sqlite",
     "deploy-db:memory": "cds deploy --to sqlite::memory:",
@@ -36,5 +54,8 @@
     "version:patch": "npm version patch -m 'chore: release v%s'",
     "version:minor": "npm version minor -m 'feat: release v%s'"
   },
-  "private": true
+  "private": true,
+  "imports": {
+    "#cds-models/*": "./@cds-models/*/index.js"
+  }
 }

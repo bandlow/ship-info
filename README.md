@@ -36,6 +36,12 @@ Datenbank von Lloyds herunterladen mft.ihsmarkit.com User: srv_maruk_skfmarine P
 cp /path/to/ShipData.mdb .
 
 3. Schema + Daten
+cds deploy --to sqlite:ship-info.sqlite
+oder für HANA-Cloud
+cds build --for hana  
+cds compile db/ --to json > schema.json
+
+
 npm run schema # → ship-info.sqlite (skf_zcapn_shipimporter_*)
 npm run stammdaten # → 1234 Ships + 100 AuxEngines
 
