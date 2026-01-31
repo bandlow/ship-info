@@ -21,15 +21,46 @@ modules:
     requires:
       - name: ship-info-srv_api
       - name: ship-info-html5-repo-host
+  - name: ship-info-srv
+    type: nodejs
+    path: gen/srv
+    requires:
+      - name: ship-info-auth
+      - name: ship-info-hana
+
+  - name: ship-info-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: ship-info-db
+      - name: ship-info-hana
 
 resources:
   - name: ship-info-hana
     type: com.sap.xs.hdi-container
     properties:
       hdi-container-name: ${service-name}
+    parameters:
+      service: hana
+      service-plan: hdi-shared
 
   - name: ship-info-html5-repo-host
     type: com.sap.html5.htmlrepo
+  - name: ship-info-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: ship-info-${org}-${space}
+        tenant-mode: dedicated
+        oauth2-configuration:
+          credential-types:
+            - "binding-secret"
+            - "x509"
 description: "Ship Information API based on LLoyds MDB"
 parameters:
   enable-parallel-deployments: true

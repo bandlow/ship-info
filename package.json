@@ -4,7 +4,8 @@
   "description": "Ship Information API based on LLoyds MDB",
   "type": "module",
   "dependencies": {
-    "@cap-js/hana": "^2.5.1",
+    "@cap-js/hana": "^2",
+    "csv-parse": "^6.1.0",
     "express": "^4",
     "mdb-reader": "^3.1.0"
   },
@@ -25,16 +26,21 @@
     "typescript": "^5"
   },
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch",
     "clean": "rm -rf dist @cds-models",
     "prebuild": "npm run clean",
-    "start": "cds-serve",
-    "watch": "cds watch",
-    "test:import:mdb": "npm run db:deploy && NODE_OPTIONS='--max-old-space-size=4096' tsx test/test-import.ts --mode=mdb",
-    "test:import:delta": "npm run db:deploy && tsx test/test-import.ts --mode=delta",
+    "build": "tsc",
+    "watch": "tsc --watch",
     "db:deploy": "cds deploy --to sqlite",
-    "db:deploy:force": "rm -f db.sqlite && cds deploy --to sqlite",
+    "db:reset": "rm -f db.sqlite && npm run db:deploy",
+    "start": "cds-serve",
+    "dev": "npm run stammdaten && cds watch srv/",
+    "test:import": "npm run db:deploy && NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' tsx test/test-import.ts",
+    "test:import:mdb": "npm run db:deploy && NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' tsx test/test-import.ts --mode=mdb",
+    "test:import:csv": "npm run db:deploy && NODE_OPTIONS='--max-old-space-size=2048 --expose-gc' tsx test/test-import.ts --mode=csv",
+    "test:import:mdb-batch": "npm run db:deploy && NODE_OPTIONS='--max-old-space-size=512 --expose-gc' tsx test/test-import-mdb-batch.ts",
+    "test:import:mdb-stream": "npm run db:deploy && NODE_OPTIONS='--max-old-space-size=512 --expose-gc' tsx test/test-import-mdb-stream.ts",
+    "lint": "eslint . --ext .ts,.js,.cds",
+    "lint:fix": "eslint . --ext .ts,.js,.cds --fix",
     "test:load": "npm run deploy-db:memory && node test/load-mockdata.js",
     "test": "cds test",
     "test:ci": "npx cds test",
@@ -45,7 +51,6 @@
     "mock-data": "./scripts/create-mockdata.sh",
     "deploy-db": "cds deploy --to sqlite",
     "deploy-db:memory": "cds deploy --to sqlite::memory:",
-    "dev": "npm run stammdaten && cds watch srv/",
     "reset": "rm db.sqlite && npm run deploy-db && npm run stammdaten",
     "hana": "cds deploy --to hana",
     "deploy": "mbt build && cf deploy mta_archives/${npm_package_name}_${npm_package_version}.mtar",
@@ -57,5 +62,6 @@
   "private": true,
   "imports": {
     "#cds-models/*": "./@cds-models/*/index.js"
-  }
+  },
+  "cds": {}
 }

@@ -12,9 +12,25 @@ const __dirname = dirname(__filename);
 const LOG = cds.log('test-import');
 const { SELECT } = cds.ql;
 
+/**
+ * Memory-Status loggen
+ */
+function logMemory(context: string): void {
+  const mem = process.memoryUsage();
+  const heapUsed = (mem.heapUsed / 1024 / 1024).toFixed(0);
+  const heapTotal = (mem.heapTotal / 1024 / 1024).toFixed(0);
+  const rss = (mem.rss / 1024 / 1024).toFixed(0);
+  const external = (mem.external / 1024 / 1024).toFixed(0);
+  LOG.info(`💾 ${context}:`);
+  LOG.info(`   Heap: ${heapUsed}/${heapTotal} MB`);
+  LOG.info(`   RSS: ${rss} MB`);
+  LOG.info(`   External: ${external} MB`);
+}
+
 async function testImport() {
   try {
     LOG.info('🚀 Starting Import Test');
+    logMemory('Start');
     
     // Projekt-Root und DB-Pfad
     const projectRoot = resolve(__dirname, '..');
@@ -29,7 +45,7 @@ async function testImport() {
       process.exit(1);
     }
     
-    // ✅ 1. Erst DB-Config setzen
+    // DB-URL setzen
     cds.env.requires.db = {
       kind: 'sqlite',
       credentials: { url: dbPath }
@@ -37,15 +53,16 @@ async function testImport() {
     
     LOG.info('📦 Loading CDS model...');
     
-    // ✅ 2. Model laden
+    // Model laden
     const csn = await cds.load('*');
     
-    // ✅ 3. Model an cds.model zuweisen (wichtig!)
-    cds.model = csn;
+    // ✅ Type-Assertion für cds.model
+    (cds as any).model = csn;
     
     LOG.info('✅ Model loaded');
+    logMemory('Nach Model-Load');
     
-    // ✅ 4. JETZT erst DB verbinden (mit geladenem Model)
+    // DB verbinden
     LOG.info('🔌 Connecting to database...');
     await cds.connect.to('db');
     
@@ -58,7 +75,6 @@ async function testImport() {
     } catch (error) {
       LOG.error('❌ Database not ready - tables missing?');
       
-      // Debug: Zeige verfügbare Tabellen
       const db = await cds.connect.to('db');
       try {
         const tables = await db.run(`SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`);
@@ -98,6 +114,7 @@ async function testImport() {
         let totalRows = 0;
         let successCount = 0;
         let errorCount = 0;
+        let totalDuration = 0;
         
         for (const [table, stat] of Object.entries(result.stats)) {
           const status = stat.error ? '❌' : '✅';
@@ -108,6 +125,7 @@ async function testImport() {
           
           if (!stat.error) {
             totalRows += stat.rows;
+            totalDuration += stat.duration;
             successCount++;
           } else {
             errorCount++;
@@ -119,7 +137,12 @@ async function testImport() {
         LOG.info(`   Total rows imported: ${totalRows.toLocaleString()}`);
         LOG.info(`   Successful tables: ${successCount}`);
         LOG.info(`   Failed tables: ${errorCount}`);
+        if (totalDuration > 0) {
+          LOG.info(`   Avg speed: ${Math.round(totalRows / (totalDuration / 1000))} rows/s`);
+        }
       }
+      
+      logMemory('Nach Import');
       
     } else if (mode === 'delta') {
       LOG.info('=== JSON Delta Import ===');
@@ -151,6 +174,7 @@ async function testImport() {
     
     LOG.info('');
     LOG.info('✅ Test completed successfully!');
+    logMemory('Ende');
     process.exit(0);
     
   } catch (error) {
