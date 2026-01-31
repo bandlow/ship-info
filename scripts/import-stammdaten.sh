@@ -8,7 +8,7 @@ PROJ_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJ_ROOT"
 
 MDB_PATH="ShipData.mdb"
-CAP_DB="ship-info.sqlite"
+CAP_DB="db.sqlite"
 
 echo "🚀 Ship Info Import → $PROJ_ROOT"
 

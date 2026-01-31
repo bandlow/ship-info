@@ -86,7 +86,7 @@ export class MDBImporter {
       }
       
       // Alte Daten löschen
-      LOG.info(`🗑️  ${tableName}: Lösche ${rows.length} alte Zeilen...`);
+      LOG.info(`🗑️  ${tableName}: Lösche alte Daten...`);
       await DELETE.from(entityName);
       
       // Daten transformieren und einfügen

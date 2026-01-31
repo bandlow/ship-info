@@ -23,11 +23,10 @@ npm run stammdaten /odata/v4/ShipInfoService/Ships
 │ │
 34 Tabellen (28k rows) Fiori Elements UI
 
-
 ## 🚀 Quick Start
 
 1. Clone & Install
-git clone https://github.com/YOUR-ORG/ship-info
+git clone <https://github.com/YOUR-ORG/ship-info>
 cd ship-info
 npm install
 
@@ -36,21 +35,19 @@ Datenbank von Lloyds herunterladen mft.ihsmarkit.com User: srv_maruk_skfmarine P
 cp /path/to/ShipData.mdb .
 
 3. Schema + Daten
-cds deploy --to sqlite:ship-info.sqlite
+cds deploy --to sqlite
 oder für HANA-Cloud
 cds build --for hana  
 cds compile db/ --to json > schema.json
 
-
-npm run schema # → ship-info.sqlite (skf_zcapn_shipimporter_*)
+npm run schema # → db.sqlite (shipinfo_*)
 npm run stammdaten # → 1234 Ships + 100 AuxEngines
 
-4. CAP Server + Fiori Preview
-npm run preview # → http://localhost:4004 + http://localhost:4005
+1. CAP Server + Fiori Preview
+npm run preview # → <http://localhost:4004> + <http://localhost:4005>
 
-5. Ships anzeigen
-http://localhost:4004/odata/v4/ShipInfoService/Ships?$top=10
-
+2. Ships anzeigen
+<http://localhost:4004/odata/v4/ShipInfoService/Ships?$top=10>
 
 ## 📊 Datenübersicht
 
@@ -64,7 +61,6 @@ http://localhost:4004/odata/v4/ShipInfoService/Ships?$top=10
 ## 🛠️ Development
 
 ### Local Development
-
 
 Watch Mode (Auto-Reload)
 npm run dev
@@ -90,7 +86,6 @@ npm test
 
 ## 📦 Scripts
 
-
 npm run schema # cds deploy → ship-info.sqlite
 npm run stammdaten # MDB → CAP Tabellen (28k rows)
 npm run preview # CAP Server (4004) + Fiori UI (4005)
@@ -98,7 +93,6 @@ npm run deploy:dev # → BTP Dev
 npm run deploy:test # → BTP Test
 npm run deploy:prod # → BTP Prod
 npm run hana-full # SQLite → HANA produktiv
-
 
 ## 🔧 Configuration
 
@@ -117,10 +111,8 @@ npm run hana-full # SQLite → HANA produktiv
 
 **`mta.yaml`** → **ship-info-srv + ship-info-ui + HANA HDI**
 
-
 mbt build
 cf deploy mta_archives/ship-info_1.0.0.mtar
-
 
 ## 🐛 Troubleshooting
 
@@ -152,26 +144,33 @@ MIT License - siehe [LICENSE](LICENSE)
 **🚀 Quick Start**  `:rocket: Quick Start`
 **📦 Scripts**      `:package: Scripts`  
 **✅ Troubleshooting** `:white_check_mark: Troubleshooting`
+
 ```
 
 ## **2. Direkte Unicode Emojis (kopieren!)**
 
 ```
-🚀 🛠️ 📦 🔧 ☁️ 🐛 🚢 ✅ 🎯 📊 🌐 
-📱 🏗️ 🎉 💾 🔄 ⏭️ 📤 📥 
+
+🚀 🛠️ 📦 🔧 ☁️ 🐛 🚢 ✅ 🎯 📊 🌐
+📱 🏗️ 🎉 💾 🔄 ⏭️ 📤 📥
+
 ```
 
 **VS Code Copy-Paste:**
 ```
+
 Strg+Shift+P → "Emoji: Insert Emoji" → Suche "rocket"
+
 ```
 
 ## **3. GitHub Emoji Liste (komplett!)**
 
 **Browser:** https://github.com/ikatyang/emoji-cheat-sheet
 ```
+
 :boom: → 💥 | :fire: → 🔥 | :sparkles: → ✨
 :construction: → 🏗️ | :bug: → 🐛 | :rocket: → 🚀
+
 ```
 
 ## **4. Ship-Info Icons (perfekt passend!)**
@@ -188,9 +187,11 @@ Strg+Shift+P → "Emoji: Insert Emoji" → Suche "rocket"
 
 ## 🚀 Quick Start
 ```
+
 npm run schema      # 🗄️ ship-info.sqlite
 npm run stammdaten  # 📊 1234 Ships
 npm run preview     # 👀 localhost:4004
+
 ```
 
 ## 📦 Scripts
@@ -236,10 +237,12 @@ sudo apt install fonts-hack-nerd-font
 
 ## 🚀 Quick Start
 ```
+
 npm install          # 📦 Dependencies
 npm run schema       # 🗄️ ship-info.sqlite  
 npm run stammdaten   # 📊 28k rows
 npm run preview      # 👀 localhost:4004/4005
+
 ```
 
 ## 🐛 Troubleshooting

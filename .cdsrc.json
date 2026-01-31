@@ -10,7 +10,7 @@
     "db": {
       "[development]": {
         "kind": "sqlite",
-        "credentials": { "url": "ship-info.sqlite" }
+        "credentials": { "url": "db.sqlite" }
       },
       "[test]": {
         "kind": "sqlite",

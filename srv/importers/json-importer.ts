@@ -1,9 +1,11 @@
+// srv/importers/json-importer.ts
 import { readFileSync } from 'fs';
 import cds from '@sap/cds';
 import { TABLE_MAPPING, transformRow, getBusinessKey } from './table-mapper.js';
-import type { DeltaImportResult, MDBRow, TransformedRow, JobLogEntry } from '../types/index.js';
+import type { DeltaImportResult, MDBRow } from '../types/index.js';
 
 const { SELECT, INSERT, UPDATE } = cds.ql;
+const LOG = cds.log('json-importer');
 
 export class JSONImporter {
   
@@ -14,20 +16,20 @@ export class JSONImporter {
     let errors = 0;
     
     try {
+      LOG.info('🔄 Starting JSON delta import from:', filePath);
+      
       const fileContent = readFileSync(filePath, 'utf8');
       const jsonData: Record<string, MDBRow[]> = JSON.parse(fileContent);
-      
-      const jobID = await this.createJobLog('JSON_DELTA_IMPORT');
       
       for (const [tableName, rows] of Object.entries(jsonData)) {
         const entityName = TABLE_MAPPING[tableName];
         
         if (!entityName) {
-          console.log(`⚠️  ${tableName}: kein Mapping`);
+          LOG.warn(`⚠️  ${tableName}: kein Mapping`);
           continue;
         }
         
-        console.log(`📥 ${tableName}: ${rows.length} Änderungen`);
+        LOG.info(`📥 ${tableName}: ${rows.length} Änderungen`);
         
         for (const row of rows) {
           try {
@@ -39,17 +41,15 @@ export class JSONImporter {
             }
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
-            console.error(`❌ Fehler bei Zeile:`, row, errorMessage);
+            LOG.error(`❌ Fehler bei Zeile:`, errorMessage);
             errors++;
           }
         }
       }
       
-      const message = `${updated} updated, ${inserted} inserted, ${errors} errors`;
-      await this.updateJobLog(jobID, errors === 0, message);
-      
       const duration = Date.now() - startTime;
-      console.log(`✅ Delta-Import: ${duration}ms`);
+      const message = `${updated} updated, ${inserted} inserted, ${errors} errors`;
+      LOG.info(`✅ Delta-Import: ${message} in ${duration}ms`);
       
       return { 
         success: errors === 0, 
@@ -62,7 +62,7 @@ export class JSONImporter {
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
-      console.error('❌ Delta-Import fehlgeschlagen:', errorMessage);
+      LOG.error('❌ Delta-Import fehlgeschlagen:', errorMessage);
       throw error;
     }
   }
@@ -83,36 +83,11 @@ export class JSONImporter {
     const existing = await SELECT.one.from(entityName).where(businessKey);
     
     if (existing) {
-      // ✅ Korrigiert: UPDATE mit .entity()
       await UPDATE.entity(entityName).set(transformed).where(businessKey);
       return { updated: true };
     } else {
       await INSERT.into(entityName).entries(transformed);
       return { updated: false };
     }
-  }
-  
-  private async createJobLog(jobType: string): Promise<string> {
-    const { jobLog } = cds.entities('shipinfo');
-    
-    const result = await INSERT.into(jobLog).entries({
-      JobType: jobType,
-      StartTime: new Date(),
-      Status: 'RUNNING'
-    });
-    
-    return result.ID as string;
-  }
-  
-  private async updateJobLog(jobID: string, success: boolean, message: string): Promise<void> {
-    const { jobLog } = cds.entities('shipinfo');
-    
-    // ✅ Korrigiert: UPDATE mit .entity()
-    await UPDATE.entity(jobLog).set({
-      EndTime: new Date(),
-      Success: success,
-      Status: success ? 'COMPLETED' : 'FAILED',
-      Message: message
-    }).where({ ID: jobID });
   }
 }
