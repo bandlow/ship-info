@@ -1,43 +1,57 @@
 ID: ship-info
 _schema-version: '3.2'
-version: ${project.version}
+version: "1.0.0"
+description: "Ship Information API based on Lloyd's MDB"
+
+parameters:
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production
 
 modules:
-  - name: ship-info-srv
-    type: nodejs
-    path: srv
-    requires:
-      - name: ship-info-hana
-    provides:
-      - name: ship-info-srv_api
-    parameters:
-      memory: 256M
-    build-parameters:
-      builder: npm-builder
-
-  - name: ship-info-ui
-    type: html5
-    path: app/ship-info-app
-    requires:
-      - name: ship-info-srv_api
-      - name: ship-info-html5-repo-host
+  # Backend Service
   - name: ship-info-srv
     type: nodejs
     path: gen/srv
     requires:
-      - name: ship-info-auth
       - name: ship-info-hana
+      - name: ship-info-auth
+    provides:
+      - name: ship-info-srv-api
+        properties:
+          srv-url: ${default-url}
+    parameters:
+      memory: 1G
+      disk-quota: 2G
+      buildpack: nodejs_buildpack
+    properties:
+      NODE_OPTIONS: "--max-old-space-size=512 --expose-gc"
+    build-parameters:
+      builder: npm-ci
+      ignore:
+        - node_modules/
+        - .env
+        - default-env.json
+        - test/
 
+  # Database Deployer
   - name: ship-info-db-deployer
     type: hdb
     path: gen/db
     parameters:
       buildpack: nodejs_buildpack
+      memory: 256M
+      disk-quota: 1G
     requires:
-      - name: ship-info-db
       - name: ship-info-hana
 
 resources:
+  # HANA HDI Container
   - name: ship-info-hana
     type: com.sap.xs.hdi-container
     properties:
@@ -45,9 +59,10 @@ resources:
     parameters:
       service: hana
       service-plan: hdi-shared
+      config:
+        schema: SHIP_INFO
 
-  - name: ship-info-html5-repo-host
-    type: com.sap.html5.htmlrepo
+  # XSUAA Authentication
   - name: ship-info-auth
     type: org.cloudfoundry.managed-service
     parameters:
@@ -61,12 +76,3 @@ resources:
           credential-types:
             - "binding-secret"
             - "x509"
-description: "Ship Information API based on LLoyds MDB"
-parameters:
-  enable-parallel-deployments: true
-build-parameters:
-  before-all:
-    - builder: custom
-      commands:
-        - npm ci
-        - npx cds build --production

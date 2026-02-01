@@ -17,7 +17,7 @@
         "credentials": { "url": ":memory:" }
       },
       "[hybrid]": {
-        "kind": "hana"
+        "kind": "hana-cloud"
       },
       "[production]": {
         "kind": "hana"
@@ -38,8 +38,7 @@
         }
       },
       "[hybrid]": {
-        "kind": "xsuaa",
-        "vcap": "xsuaa"
+        "kind": "mocked"
       },
       "[production]": {
         "kind": "xsuaa"
