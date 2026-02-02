@@ -1,4 +1,29 @@
 namespace shipinfo;
+using { cuid, managed } from '@sap/cds/common'; 
+// ✅ Tracking des Datenbank-Standes
+entity ImportInfo  : cuid, managed {
+      importType       : String(20);  // 'FULL' oder 'DELTA'
+      importSource     : String(200); // Dateiname
+      importDate       : DateTime;
+      dataVersion      : String(50);  // z.B. '2026-02-02' oder '2026-02'
+      status           : String(20);  // 'SUCCESS', 'FAILED', 'IN_PROGRESS'
+      recordsImported  : Integer;
+      duration         : Integer;     // in Sekunden
+      errorMessage     : String(1000);
+      createdAt        : DateTime;
+}
+
+// ✅ Aktueller Datenbank-Stand (Singleton)
+entity EntityUpdateStatus {
+  key entityName       : String(100);
+      lastFullImport   : DateTime;
+      lastDeltaImport  : DateTime;
+      lastDataVersion  : String(50);
+      recordCount      : Integer;
+      updatedAt        : DateTime;
+}
+
+// Loyds
 entity tblShip {
     key LRIMOShipNo: String;
     ShipName: String;
@@ -360,11 +385,6 @@ entity tblTownCodes {
     Town: String;
 }
 
-entity entityUpdateStatus {
-    key Entity: String;
-    key ![Key]: String;
-    LastDeltaUpdateDate: Date;
-}
 
 entity jobLog {
   key ID: UUID;
@@ -376,9 +396,4 @@ entity jobLog {
   Success: Boolean;
   Status: String(20);   
   Message: String(500);
-}
-
-
-entity importInfo {
-    LastFileImportDate: Date;
 }

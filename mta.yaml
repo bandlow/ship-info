@@ -1,17 +1,6 @@
 ID: ship-info
 _schema-version: '3.2'
-version: "1.0.0"
-description: "Ship Information API based on Lloyd's MDB"
-
-parameters:
-  enable-parallel-deployments: true
-
-build-parameters:
-  before-all:
-    - builder: custom
-      commands:
-        - npm ci
-        - npx cds build --production
+version: '0.1.0'
 
 modules:
   # Backend Service
@@ -32,14 +21,15 @@ modules:
     properties:
       NODE_OPTIONS: "--max-old-space-size=512 --expose-gc"
     build-parameters:
-      builder: npm-ci
-      ignore:
-        - node_modules/
-        - .env
-        - default-env.json
-        - test/
+      builder: npm-builder
 
-  # Database Deployer
+  - name: ship-info-ui
+    type: html5
+    path: app/ship-info-app
+    requires:
+      - name: ship-info-srv_api
+      - name: ship-info-html5-repo-host
+
   - name: ship-info-db-deployer
     type: hdb
     path: gen/db
@@ -51,7 +41,7 @@ modules:
       - name: ship-info-hana
 
 resources:
-  # HANA HDI Container
+ 
   - name: ship-info-hana
     type: com.sap.xs.hdi-container
     properties:
@@ -62,7 +52,15 @@ resources:
       config:
         schema: SHIP_INFO
 
-  # XSUAA Authentication
+  - name: ship-info-html5-repo-host
+    type: com.sap.html5.htmlrepo
+ 
+  - name: ship-info-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+
   - name: ship-info-auth
     type: org.cloudfoundry.managed-service
     parameters:

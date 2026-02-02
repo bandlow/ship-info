@@ -65,7 +65,7 @@ export default cds.service.impl(async function(this: any) {
     
     try {
       const importer = new JSONImporter();
-      const result = await importer.importDelta(filePath);
+      const result = await importer.importAll(filePath);
       
       LOG.info(`✅ Delta import completed: ${result.message}`);
       

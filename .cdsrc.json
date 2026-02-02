@@ -1,20 +1,50 @@
 {
-  "profiles": ["development", "hybrid", "local", "test"],
-  
+  "profiles": [
+    "development",
+    "hybrid",
+    "local",
+    "test"
+  ],
   "folders": {
     "db": "db",
     "srv": "srv",
     "app": "app"
   },
   "requires": {
+    "SFTP_SHIPDATA": {
+      "kind": "odata",
+      "model": "srv/external/sftp",
+      "[production]": {
+        "credentials": {
+          "destination": "SFTP_SHIPDATA",
+          "path": "/"
+        }
+      },
+      "[development]": {
+        "credentials": {
+          "host": "${env:SSH_HOST}",
+          "port": "${env:SSH_PORT}",
+          "username": "${env:SSH_USER}",
+          "password": "${env:SSH_PASSWORD}",
+          "remotePath": "/"
+        }
+      }
+    },
+    "destination": {
+      "kind": "odata-v2"
+    },
     "db": {
       "[development]": {
         "kind": "sqlite",
-        "credentials": { "url": "db.sqlite" }
+        "credentials": {
+          "url": "db.sqlite"
+        }
       },
       "[test]": {
         "kind": "sqlite",
-        "credentials": { "url": ":memory:" }
+        "credentials": {
+          "url": ":memory:"
+        }
       },
       "[hybrid]": {
         "kind": "hana-cloud"
@@ -27,14 +57,29 @@
       "[development]": {
         "kind": "basic",
         "users": {
-          "alice": { "password": "alice", "roles": ["Admin"] },
-          "bob": { "password": "bob", "roles": ["User"] }
+          "alice": {
+            "password": "alice",
+            "roles": [
+              "Admin"
+            ]
+          },
+          "bob": {
+            "password": "bob",
+            "roles": [
+              "User"
+            ]
+          }
         }
       },
       "[test]": {
         "kind": "basic",
         "users": {
-          "test": { "password": "test", "roles": ["Viewer"] }
+          "test": {
+            "password": "test",
+            "roles": [
+              "Viewer"
+            ]
+          }
         }
       },
       "[hybrid]": {
@@ -45,6 +90,10 @@
       }
     }
   },
-  "odata": { "containment": true },
-  "i18n": { "default_language": "de" }
+  "odata": {
+    "containment": true
+  },
+  "i18n": {
+    "default_language": "de"
+  }
 }

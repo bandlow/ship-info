@@ -2,6 +2,8 @@
 _out
 *.db
 *.sqlite
+*.sqlite-shm
+*.sqlite-wal
 *.mdb
 *.ldb
 *.appx
@@ -12,6 +14,7 @@ gen/
 node_modules/*
 target/
 dist/
+downloads/
 
 # Web IDE, App Studio
 .che/

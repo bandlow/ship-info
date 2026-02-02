@@ -21,8 +21,4 @@ service ImportService @(requires: 'authenticated-user') {
         inserted: Integer;
         errors: Integer;
     };
-    
-    // Monitoring
-    entity JobLog as projection on si.jobLog;
-    entity EntityUpdateStatus as projection on si.entityUpdateStatus;
 }
