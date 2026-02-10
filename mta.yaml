@@ -6,7 +6,7 @@ modules:
   # Backend Service
   - name: ship-info-srv
     type: nodejs
-    path: gen/srv
+    path: srv
     requires:
       - name: ship-info-hana
       - name: ship-info-auth
@@ -27,7 +27,7 @@ modules:
     type: html5
     path: app/ship-info-app
     requires:
-      - name: ship-info-srv_api
+      - name: ship-info-srv
       - name: ship-info-html5-repo-host
 
   - name: ship-info-db-deployer
@@ -50,7 +50,9 @@ resources:
       service: hana
       service-plan: hdi-shared
       config:
-        schema: SHIP_INFO
+        schema: SHIPINFO_DEV
+        container_group: SHIPMANAGER
+        database_id: 2d118d47-f07f-471c-b65c-98bdcbdb1c1e
 
   - name: ship-info-html5-repo-host
     type: com.sap.html5.htmlrepo
